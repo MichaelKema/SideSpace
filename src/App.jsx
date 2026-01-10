@@ -18,7 +18,7 @@ function App() {
       return;
     }
 
-    // Web fullscreen (Cloudflare Pages)
+    // Web fullscreen
     if (!document.fullscreenElement) {
       await document.documentElement.requestFullscreen();
     } else {
@@ -28,8 +28,6 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      // F11 in browsers is special; some browsers won’t let JS fully override it.
-      
       if (event.key !== "F11") return;
       event.preventDefault();
       toggleFullscreen();
@@ -56,13 +54,17 @@ function App() {
         height: "100vh",
         display: "grid",
         placeItems: "center",
-        cursor: "pointer",
-        userSelect: "none",
       }}
-      title="Click to toggle fullscreen"
-      onClick={() => toggleFullscreen()}
     >
-      <h1 id="clock">{shortTime}</h1>
+      <div style={{ display: "grid", gap: "16px", placeItems: "center" }}>
+        <h1 id="clock" style={{ margin: 0 }}>
+          {shortTime}
+        </h1>
+
+        <button type="button" onClick={toggleFullscreen}>
+          Toggle Fullscreen
+        </button>
+      </div>
     </div>
   );
 }
