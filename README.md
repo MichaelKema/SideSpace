@@ -1,8 +1,7 @@
-# Tauri + React
+# Side Space
 
-This template should help get you started developing with Tauri and React in Vite.
+A small simple app that acts mostly as a clock
 
-## Recommended IDE Setup
+I made this solve the issue of having something simple to have on a second monitor that's not distracting without turning it off
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
-"# SideSpace" 
+Press F11 to toggle fullscreen
