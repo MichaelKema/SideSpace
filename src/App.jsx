@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import "./App.css";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+
 function App() {
   const [shortTime, setShortTime] = useState(() =>
     new Date().toLocaleTimeString("en-US", { timeStyle: "medium" })
   );
 
   const toggleFullscreen = useCallback(async () => {
+    // Only available inside a Tauri desktop runtime
+    const isTauri = "__TAURI_INTERNALS__" in window;
+    if (!isTauri) return;
+
+    const { getCurrentWindow } = await import("@tauri-apps/api/window");
     const win = getCurrentWindow();
     const isFullscreen = await win.isFullscreen();
     await win.setFullscreen(!isFullscreen);
@@ -14,9 +19,7 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key !== "F11") {
-        return;
-      }
+      if (event.key !== "F11") return;
       event.preventDefault();
       toggleFullscreen();
     };
@@ -36,11 +39,9 @@ function App() {
   }, []);
 
   return (
-
     <div>
       <h1 id="clock">{shortTime}</h1>
     </div>
-
   );
 }
 
