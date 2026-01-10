@@ -7,18 +7,29 @@ function App() {
   );
 
   const toggleFullscreen = useCallback(async () => {
-    // Only available inside a Tauri desktop runtime
     const isTauri = "__TAURI_INTERNALS__" in window;
-    if (!isTauri) return;
 
-    const { getCurrentWindow } = await import("@tauri-apps/api/window");
-    const win = getCurrentWindow();
-    const isFullscreen = await win.isFullscreen();
-    await win.setFullscreen(!isFullscreen);
+    // Tauri fullscreen
+    if (isTauri) {
+      const { getCurrentWindow } = await import("@tauri-apps/api/window");
+      const win = getCurrentWindow();
+      const isFullscreen = await win.isFullscreen();
+      await win.setFullscreen(!isFullscreen);
+      return;
+    }
+
+    // Web fullscreen (Cloudflare Pages)
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+    } else {
+      await document.exitFullscreen();
+    }
   }, []);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
+      // F11 in browsers is special; some browsers won’t let JS fully override it.
+      
       if (event.key !== "F11") return;
       event.preventDefault();
       toggleFullscreen();
@@ -39,7 +50,18 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        display: "grid",
+        placeItems: "center",
+        cursor: "pointer",
+        userSelect: "none",
+      }}
+      title="Click to toggle fullscreen"
+      onClick={() => toggleFullscreen()}
+    >
       <h1 id="clock">{shortTime}</h1>
     </div>
   );
