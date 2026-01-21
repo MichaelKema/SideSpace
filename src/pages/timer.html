@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timer</title>
+    <link rel="stylesheet" href="../App.css" />
+  </head>
+  <body>
+    <main class="timer-page">
+      <div class="timer-panel">
+        <h1>Timer</h1>
+        <div id="time-display" class="time-display">00:00:00</div>
+        <div class="time-inputs">
+          <label>
+            Hours
+            <input
+              id="hours"
+              type="number"
+              min="0"
+              max="99"
+              inputmode="numeric"
+              value="0"
+            />
+          </label>
+          <label>
+            Minutes
+            <input
+              id="minutes"
+              type="number"
+              min="0"
+              max="59"
+              inputmode="numeric"
+              value="0"
+            />
+          </label>
+          <label>
+            Seconds
+            <input
+              id="seconds"
+              type="number"
+              min="0"
+              max="59"
+              inputmode="numeric"
+              value="0"
+            />
+          </label>
+        </div>
+        <div class="timer-controls">
+          <button id="start" type="button">Start</button>
+          <button id="pause" type="button">Pause</button>
+          <button id="reset" type="button">Reset</button>
+        </div>
+      </div>
+    </main>
+    <button id="timer" type="button">Clock</button>
+    <script>
+      const timerButton = document.getElementById("timer");
+      timerButton.addEventListener("click", () => {
+        if (history.length > 1) {
+          history.back();
+          return;
+        }
+        window.location.assign("/");
+      });
+
+      const timeDisplay = document.getElementById("time-display");
+      const hoursInput = document.getElementById("hours");
+      const minutesInput = document.getElementById("minutes");
+      const secondsInput = document.getElementById("seconds");
+      const startButton = document.getElementById("start");
+      const pauseButton = document.getElementById("pause");
+      const resetButton = document.getElementById("reset");
+
+      let intervalId = null;
+      let remainingSeconds = 0;
+      let endTime = 0;
+      let hasStarted = false;
+
+      const pad = (value) => String(value).padStart(2, "0");
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+      const toNumber = (value) => {
+        const parsed = Number.parseInt(value, 10);
+        return Number.isNaN(parsed) ? 0 : parsed;
+      };
+
+      const formatTime = (totalSeconds) => {
+        const safeSeconds = Math.max(0, Math.floor(totalSeconds));
+        const hours = Math.floor(safeSeconds / 3600);
+        const minutes = Math.floor((safeSeconds % 3600) / 60);
+        const seconds = safeSeconds % 60;
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+      };
+
+      const updateDisplay = (seconds) => {
+        timeDisplay.textContent = formatTime(seconds);
+      };
+
+      const getInputTotal = () => {
+        const hours = Math.max(0, toNumber(hoursInput.value));
+        const minutes = Math.max(0, toNumber(minutesInput.value));
+        const seconds = Math.max(0, toNumber(secondsInput.value));
+        return hours * 3600 + minutes * 60 + seconds;
+      };
+
+      const clampInputs = () => {
+        const hours = clamp(toNumber(hoursInput.value), 0, 99);
+        const minutes = clamp(toNumber(minutesInput.value), 0, 59);
+        const seconds = clamp(toNumber(secondsInput.value), 0, 59);
+        hoursInput.value = String(hours);
+        minutesInput.value = String(minutes);
+        secondsInput.value = String(seconds);
+        return hours * 3600 + minutes * 60 + seconds;
+      };
+
+      const setInputsDisabled = (disabled) => {
+        hoursInput.disabled = disabled;
+        minutesInput.disabled = disabled;
+        secondsInput.disabled = disabled;
+      };
+
+      const updateControls = () => {
+        const isRunning = intervalId !== null;
+        startButton.disabled = isRunning || hasStarted;
+        pauseButton.disabled = !hasStarted || remainingSeconds <= 0;
+      };
+
+      const requestNotificationPermission = () => {
+        if (!("Notification" in window)) return;
+        if (Notification.permission === "default") {
+          Notification.requestPermission();
+        }
+      };
+
+      const notifyFinished = () => {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("Timer finished");
+          return;
+        }
+        alert("Timer finished");
+      };
+
+      const stopInterval = () => {
+        if (intervalId === null) return;
+        clearInterval(intervalId);
+        intervalId = null;
+      };
+
+      const tick = () => {
+        const msLeft = endTime - Date.now();
+        if (msLeft <= 0) {
+          remainingSeconds = 0;
+          updateDisplay(remainingSeconds);
+          stopInterval();
+          setInputsDisabled(false);
+          hasStarted = false;
+          pauseButton.textContent = "Pause";
+          updateControls();
+          notifyFinished();
+          return;
+        }
+        remainingSeconds = Math.ceil(msLeft / 1000);
+        updateDisplay(remainingSeconds);
+        updateControls();
+      };
+
+      const startTimer = () => {
+        if (intervalId !== null) return;
+        remainingSeconds = clampInputs();
+        if (remainingSeconds <= 0) return;
+        requestNotificationPermission();
+        setInputsDisabled(true);
+        hasStarted = true;
+        endTime = Date.now() + remainingSeconds * 1000;
+        intervalId = setInterval(tick, 250);
+        tick();
+      };
+
+      const pauseTimer = () => {
+        if (intervalId === null) {
+          if (!hasStarted || remainingSeconds <= 0) return;
+          endTime = Date.now() + remainingSeconds * 1000;
+          intervalId = setInterval(tick, 250);
+          pauseButton.textContent = "Pause";
+          updateControls();
+          return;
+        }
+        stopInterval();
+        remainingSeconds = Math.max(
+          0,
+          Math.ceil((endTime - Date.now()) / 1000),
+        );
+        updateDisplay(remainingSeconds);
+        pauseButton.textContent = "Resume";
+        updateControls();
+      };
+
+      const resetTimer = () => {
+        stopInterval();
+        pauseButton.textContent = "Pause";
+        setInputsDisabled(false);
+        hasStarted = false;
+        remainingSeconds = clampInputs();
+        updateDisplay(remainingSeconds);
+        updateControls();
+      };
+
+      const syncFromInputs = () => {
+        if (intervalId !== null) return;
+        remainingSeconds = getInputTotal();
+        updateDisplay(remainingSeconds);
+        updateControls();
+      };
+
+      hoursInput.addEventListener("input", syncFromInputs);
+      minutesInput.addEventListener("input", syncFromInputs);
+      secondsInput.addEventListener("input", syncFromInputs);
+      startButton.addEventListener("click", startTimer);
+      pauseButton.addEventListener("click", pauseTimer);
+      resetButton.addEventListener("click", resetTimer);
+
+      updateDisplay(remainingSeconds);
+      updateControls();
+    </script>
+  </body>
+</html>

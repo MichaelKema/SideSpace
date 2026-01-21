@@ -3,7 +3,7 @@ import "./App.css";
 
 function App() {
   const [shortTime, setShortTime] = useState(() =>
-    new Date().toLocaleTimeString("en-US", { timeStyle: "medium" })
+    new Date().toLocaleTimeString("en-US", { timeStyle: "medium" }),
   );
 
   const toggleFullscreen = useCallback(async () => {
@@ -26,6 +26,14 @@ function App() {
     }
   }, []);
 
+  const goToTimer = useCallback(() => {
+    const baseUrl = import.meta.env.BASE_URL ?? "/";
+    const timerPath = import.meta.env.DEV
+      ? `${baseUrl}src/pages/timer.html`
+      : `${baseUrl}timer.html`;
+    window.location.assign(timerPath);
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key !== "F11") return;
@@ -40,7 +48,7 @@ function App() {
   useEffect(() => {
     const id = setInterval(() => {
       setShortTime(
-        new Date().toLocaleTimeString("en-US", { timeStyle: "medium" })
+        new Date().toLocaleTimeString("en-US", { timeStyle: "medium" }),
       );
     }, 1000);
 
@@ -63,6 +71,9 @@ function App() {
 
         <button type="button" onClick={toggleFullscreen}>
           Toggle Fullscreen
+        </button>
+        <button id="timer" type="button" onClick={goToTimer}>
+          Timer
         </button>
       </div>
     </div>
