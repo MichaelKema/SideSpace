@@ -28,9 +28,7 @@ function App() {
 
   const goToTimer = useCallback(() => {
     const baseUrl = import.meta.env.BASE_URL ?? "/";
-    const timerPath = import.meta.env.DEV
-      ? `${baseUrl}src/pages/timer.html`
-      : `${baseUrl}timer.html`;
+    const timerPath = `${baseUrl}pages/timer.html`;
     window.location.assign(timerPath);
   }, []);
 

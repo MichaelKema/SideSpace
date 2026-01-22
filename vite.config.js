@@ -13,7 +13,7 @@ export default defineConfig(async () => ({
     rollupOptions: {
       input: {
         main: resolve(rootDir, "index.html"),
-        timer: resolve(rootDir, "src/pages/timer.html"),
+        timer: resolve(rootDir, "pages/timer.html"),
       },
     },
   },
