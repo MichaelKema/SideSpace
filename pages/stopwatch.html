@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stopwatch</title>
+    <link rel="stylesheet" href="/src/App.css" />
+  </head>
+  <body>
+    <main class="timer-page">
+      <div class="timer-panel">
+        <h1>Stopwatch</h1>
+        <div id="time-display" class="time-display">00:00:00.00</div>
+        <div class="timer-controls">
+          <button id="start" type="button">Start</button>
+          <button id="pause" type="button">Pause</button>
+          <button id="reset" type="button">Reset</button>
+        </div>
+      </div>
+    </main>
+    <button id="timer" type="button">Clock</button>
+    <button id="timer-page" type="button">Timer</button>
+    <script>
+      const timerButton = document.getElementById("timer");
+      timerButton.addEventListener("click", () => {
+        if (history.length > 1) {
+          history.back();
+          return;
+        }
+        window.location.assign("/");
+      });
+
+      const timerPageButton = document.getElementById("timer-page");
+      timerPageButton.addEventListener("click", () => {
+        window.location.assign("/pages/timer.html");
+      });
+
+      const timeDisplay = document.getElementById("time-display");
+      const startButton = document.getElementById("start");
+      const pauseButton = document.getElementById("pause");
+      const resetButton = document.getElementById("reset");
+
+      let rafId = null;
+      let elapsedMs = 0;
+      let startTime = 0;
+      let hasStarted = false;
+      let isRunning = false;
+
+      const pad = (value) => String(value).padStart(2, "0");
+
+      const formatTime = (ms) => {
+        const safeMs = Math.max(0, Math.floor(ms));
+        const totalSeconds = Math.floor(safeMs / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const centiseconds = Math.floor((safeMs % 1000) / 10);
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(centiseconds)}`;
+      };
+
+      const updateDisplay = () => {
+        timeDisplay.textContent = formatTime(elapsedMs);
+      };
+
+      const updateControls = () => {
+        startButton.disabled = isRunning || hasStarted;
+        pauseButton.disabled = !hasStarted;
+      };
+
+      const stopTick = () => {
+        if (rafId === null) return;
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      };
+
+      const tick = () => {
+        elapsedMs = performance.now() - startTime;
+        updateDisplay();
+        rafId = requestAnimationFrame(tick);
+      };
+
+      const startStopwatch = () => {
+        if (isRunning) return;
+        hasStarted = true;
+        isRunning = true;
+        startTime = performance.now() - elapsedMs;
+        rafId = requestAnimationFrame(tick);
+        pauseButton.textContent = "Pause";
+        updateControls();
+      };
+
+      const pauseStopwatch = () => {
+        if (!hasStarted) return;
+        if (isRunning) {
+          isRunning = false;
+          stopTick();
+          pauseButton.textContent = "Resume";
+          updateControls();
+          return;
+        }
+        isRunning = true;
+        startTime = performance.now() - elapsedMs;
+        rafId = requestAnimationFrame(tick);
+        pauseButton.textContent = "Pause";
+        updateControls();
+      };
+
+      const resetStopwatch = () => {
+        stopTick();
+        elapsedMs = 0;
+        startTime = 0;
+        hasStarted = false;
+        isRunning = false;
+        pauseButton.textContent = "Pause";
+        updateDisplay();
+        updateControls();
+      };
+
+      startButton.addEventListener("click", startStopwatch);
+      pauseButton.addEventListener("click", pauseStopwatch);
+      resetButton.addEventListener("click", resetStopwatch);
+
+      updateDisplay();
+      updateControls();
+    </script>
+  </body>
+</html>

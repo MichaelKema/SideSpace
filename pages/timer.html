@@ -54,6 +54,7 @@
       </div>
     </main>
     <button id="timer" type="button">Clock</button>
+    <button id="stopwatch" type="button">Stopwatch</button>
     <script>
       const timerButton = document.getElementById("timer");
       timerButton.addEventListener("click", () => {
@@ -62,6 +63,11 @@
           return;
         }
         window.location.assign("/");
+      });
+
+      const stopwatchButton = document.getElementById("stopwatch");
+      stopwatchButton.addEventListener("click", () => {
+        window.location.assign("/pages/stopwatch.html");
       });
 
       const timeDisplay = document.getElementById("time-display");

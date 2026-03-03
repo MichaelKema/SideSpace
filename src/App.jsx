@@ -32,6 +32,12 @@ function App() {
     window.location.assign(timerPath);
   }, []);
 
+  const goToStopwatch = useCallback(() => {
+    const baseUrl = import.meta.env.BASE_URL ?? "/";
+    const stopwatchPath = `${baseUrl}pages/stopwatch.html`;
+    window.location.assign(stopwatchPath);
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key !== "F11") return;
@@ -72,6 +78,9 @@ function App() {
         </button>
         <button id="timer" type="button" onClick={goToTimer}>
           Timer
+        </button>
+        <button id="stopwatch" type="button" onClick={goToStopwatch}>
+          Stopwatch
         </button>
       </div>
     </div>

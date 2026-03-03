@@ -14,6 +14,7 @@ export default defineConfig(async () => ({
       input: {
         main: resolve(rootDir, "index.html"),
         timer: resolve(rootDir, "pages/timer.html"),
+        stopwatch: resolve(rootDir, "pages/stopwatch.html"),
       },
     },
   },

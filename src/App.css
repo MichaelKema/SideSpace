@@ -221,3 +221,17 @@ button {
   z-index: 1000; /* Ensures it stays on top of other content */
 }
 
+#stopwatch {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 1000;
+}
+
+#timer-page {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 1000;
+}
+
